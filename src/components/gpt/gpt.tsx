@@ -47,17 +47,25 @@ export default function Gpt()
             timestamp: Date.now()
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        // 사용자 메시지를 즉시 추가
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
         setInputValue('');
         setIsLoading(true);
 
         try {
+            // API 형식에 맞게 메시지를 변환 (timestamp 제거)
+            const apiMessages = updatedMessages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
+
             const response = await fetch('/api/gpt', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ prompt: inputValue }),
+                body: JSON.stringify({ messages: apiMessages }),
             });
 
             if (!response.ok) {
